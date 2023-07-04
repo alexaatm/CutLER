@@ -119,3 +119,7 @@ venv.bak/
 
 # mkdocs documentation
 /site
+
+# sashatm
+results
+output
