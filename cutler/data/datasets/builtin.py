@@ -93,6 +93,11 @@ _PREDEFINED_SPLITS_UVO["uvo"] = {
     "cls_agnostic_uvo": ("uvo/all_UVO_frames", "uvo/annotations/val_sparse_cleaned_cls_agnostic.json"),
 }
 
+_PREDEFINED_SPLITS_carotidmini = {}
+_PREDEFINED_SPLITS_carotidmini["carotid-mini"] = {
+    'carotid-mini_train': ("carotid-mini/images", "carotid-mini/annotations/imagenet_train_fixsize480_tau0.15_N3.json"),
+}
+
 def register_all_imagenet(root):
     for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_IMAGENET.items():
         for key, (image_root, json_file) in splits_per_dataset.items():
@@ -203,6 +208,17 @@ def register_all_coco_ca(root):
                 os.path.join(root, image_root),
             )
 
+def register_all_carotidmini(root):
+    for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_carotidmini.items():
+        for key, (image_root, json_file) in splits_per_dataset.items():
+            # Assume pre-defined datasets live in `./datasets`.
+            register_coco_instances(
+                key,
+                _get_builtin_metadata(dataset_name),
+                os.path.join(root, json_file) if "://" not in json_file else json_file,
+                os.path.join(root, image_root),
+            )
+
 _root = os.path.expanduser(os.getenv("DETECTRON2_DATASETS", "datasets"))
 register_all_coco_semi(_root)
 register_all_coco_ca(_root)
@@ -214,3 +230,4 @@ register_all_kitti(_root)
 register_all_openimages(_root)
 register_all_objects365(_root)
 register_all_lvis(_root)
+register_all_carotidmini(_root)
