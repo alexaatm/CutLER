@@ -316,11 +316,11 @@ def _get_coco_panoptic_separated_meta():
 
 
 def _get_builtin_metadata(dataset_name):
-    if dataset_name in ["coco", "coco_semi", "carotid-mini"]:
+    if dataset_name in ["coco", "coco_semi"]:
         return _get_coco_instances_meta()
     if dataset_name == "coco_panoptic_separated":
         return _get_coco_panoptic_separated_meta()
-    elif dataset_name in ["imagenet", "kitti", "cross_domain", "lvis", "voc", "coco_cls_agnostic", "objects365", 'openimages']:
+    elif dataset_name in ["imagenet", "kitti", "cross_domain", "lvis", "voc", "coco_cls_agnostic", "objects365", 'openimages', 'carotid-mini']:
         return _get_imagenet_instances_meta()
     elif dataset_name == "uvo":
         return _get_UVO_instances_meta()
