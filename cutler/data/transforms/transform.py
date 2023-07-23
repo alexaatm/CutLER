@@ -43,7 +43,7 @@ class ExtentTransform(Transform):
     See: https://pillow.readthedocs.io/en/latest/PIL.html#PIL.ImageTransform.ExtentTransform
     """
 
-    def __init__(self, src_rect, output_size, interp=Image.LINEAR, fill=0):
+    def __init__(self, src_rect, output_size, interp=Image.Resampling.BILINEAR, fill=0):
         """
         Args:
             src_rect (x0, y0, x1, y1): src coordinates
@@ -106,7 +106,7 @@ class ResizeTransform(Transform):
         # TODO decide on PIL vs opencv
         super().__init__()
         if interp is None:
-            interp = Image.BILINEAR
+            interp = Image.Resampling.BILINEAR
         self._set_attributes(locals())
 
     def apply_image(self, img, interp=None):
@@ -137,8 +137,8 @@ class ResizeTransform(Transform):
             img = img.view(shape_4d).permute(2, 3, 0, 1)  # hw(c) -> nchw
             _PIL_RESIZE_TO_INTERPOLATE_MODE = {
                 Image.NEAREST: "nearest",
-                Image.BILINEAR: "bilinear",
-                Image.BICUBIC: "bicubic",
+                Image.Resampling.BILINEAR: "bilinear",
+                Image.Resampling.BICUBIC: "bicubic",
             }
             mode = _PIL_RESIZE_TO_INTERPOLATE_MODE[interp_method]
             align_corners = None if mode == "nearest" else False
