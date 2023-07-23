@@ -29,26 +29,8 @@ def vis_mask(input, mask, mask_color) :
     rgb[fg] = (rgb[fg] * 0.3 + np.array(mask_color) * 0.7).astype(np.uint8)
     return Image.fromarray(rgb)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser('MaskCut Demo')
-    # default arguments
-    parser.add_argument('--out-dir', type=str, help='output directory')
-    parser.add_argument('--vit-arch', type=str, default='small', choices=['base', 'small'], help='which architecture')
-    parser.add_argument('--vit-feat', type=str, default='k', choices=['k', 'q', 'v', 'kqv'], help='which features')
-    parser.add_argument('--patch-size', type=int, default=8, choices=[16, 8], help='patch size')
-    parser.add_argument('--img-path', type=str, default=None, help='single image visualization')
-    parser.add_argument('--tau', type=float, default=0.15, help='threshold used for producing binary graph')
 
-    # additional arguments
-    parser.add_argument('--fixed_size', type=int, default=480, help='rescale the input images to a fixed size')
-    parser.add_argument('--pretrain_path', type=str, default=None, help='path to pretrained model')
-    parser.add_argument('--N', type=int, default=3, help='the maximum number of pseudo-masks per image')
-    parser.add_argument('--cpu', action='store_true', help='use cpu')
-    parser.add_argument('--output_path', type=str,  default='', help='path to save outputs')
-
-    args = parser.parse_args()
-    print (args)
-
+def process_image(img_path, output_dir, args):
     if args.pretrain_path is not None:
         url = args.pretrain_path
     if args.vit_arch == 'base' and args.patch_size == 8:
@@ -68,10 +50,10 @@ if __name__ == "__main__":
     if not args.cpu:
         backbone.cuda()
 
-    bipartitions, _, I_new = maskcut(args.img_path, backbone, args.patch_size, args.tau, \
+    bipartitions, _, I_new = maskcut(img_path, backbone, args.patch_size, args.tau, \
         N=args.N, fixed_size=args.fixed_size, cpu=args.cpu)
 
-    I = Image.open(args.img_path).convert('RGB')
+    I = Image.open(img_path).convert('RGB')
     width, height = I.size
     pseudo_mask_list = []
     for idx, bipartition in enumerate(bipartitions):
@@ -79,7 +61,7 @@ if __name__ == "__main__":
         pseudo_mask = densecrf(np.array(I_new), bipartition)
         pseudo_mask = ndimage.binary_fill_holes(pseudo_mask>=0.5)
 
-        # filter out the mask that have a very different pseudo-mask after the CRF
+        # filter out the mask that has a very different pseudo-mask after the CRF
         if not args.cpu:
             mask1 = torch.from_numpy(bipartition).cuda()
             mask2 = torch.from_numpy(pseudo_mask).cuda()
@@ -105,4 +87,42 @@ if __name__ == "__main__":
     input = np.array(I)
     for pseudo_mask in pseudo_mask_list:
         input = vis_mask(input, pseudo_mask, random_color(rgb=True))
-    input.save(os.path.join(args.output_path, "demo.jpg"))
+    input.save(os.path.join(output_dir, os.path.basename(img_path)))
+
+def process_directory(input_dir, output_dir, args):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    image_files = [f for f in os.listdir(input_dir) if f.endswith('.jpg') or f.endswith('.png')]
+    for image_file in image_files:
+        img_path = os.path.join(input_dir, image_file)
+        process_image(img_path, output_dir, args)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser('MaskCut Demo')
+    # default arguments
+    parser.add_argument('--out-dir', type=str, help='output directory')
+    parser.add_argument('--vit-arch', type=str, default='small', choices=['base', 'small'], help='which architecture')
+    parser.add_argument('--vit-feat', type=str, default='k', choices=['k', 'q', 'v', 'kqv'], help='which features')
+    parser.add_argument('--patch-size', type=int, default=8, choices=[16, 8], help='patch size')
+    parser.add_argument('--img-path', type=str, default=None, help='single image visualization')
+    parser.add_argument('--tau', type=float, default=0.15, help='threshold used for producing binary graph')
+
+    # additional arguments
+    parser.add_argument('--fixed_size', type=int, default=480, help='rescale the input images to a fixed size')
+    parser.add_argument('--pretrain_path', type=str, default=None, help='path to pretrained model')
+    parser.add_argument('--N', type=int, default=3, help='the maximum number of pseudo-masks per image')
+    parser.add_argument('--cpu', action='store_true', help='use cpu')
+    parser.add_argument('--output_path', type=str,  default='', help='path to save outputs')
+    parser.add_argument('--input-dir', type=str, default=None, help='directory containing input images')
+
+    args = parser.parse_args()
+    print (args)
+
+    if args.input_dir is not None:
+        process_directory(args.input_dir, args.output_path, args)
+    elif args.img_path is not None:
+        process_image(args.img_path, args.output_path, args)
+    else:
+        print("Please provide either --img-path or --input-dir to run the demo.")
