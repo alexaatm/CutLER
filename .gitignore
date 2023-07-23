@@ -123,3 +123,6 @@ venv.bak/
 # sashatm
 results
 output
+maskcut/checkpoint
+maskcut/outputs/
+cutler/outputs/

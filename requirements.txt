@@ -12,5 +12,13 @@ fvcore==0.1.5.post20220512
 gdown==4.5.4
 # faiss-gpu==1.7.2
 faiss-cpu==1.6.5
+#
 # pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
 pycocotools
+#
+# pip install git+https://github.com/lucasb-eyer/pydensecrf.git
+#
+# to install detectron, follow these 3 steps
+# git clone https://github.com/facebookresearch/detectron2.git
+# cd detectron2
+# pip install -e .
