@@ -127,3 +127,4 @@ maskcut/checkpoint
 maskcut/outputs/
 cutler/outputs/
 third_party/
+maskcut/imagenet_train_caoritd_mutinfo_fixsize480_tau0.15_N3.json
