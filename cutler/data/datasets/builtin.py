@@ -104,6 +104,12 @@ _PREDEFINED_SPLITS_fullcarotid["full_carotid"] = {
     'full_carotid_train': ("full_carotid/images/train", "full_carotid/annotations/merged_imagenet_train_fixsize480_tau0.15_N3.json"),
 }
 
+_PREDEFINED_SPLITS_mutinfovalcarotid = {}
+_PREDEFINED_SPLITS_mutinfovalcarotid["mutinfo_val_carotid"] = {
+    # maskcut annotations
+    'mutinfo_val_carotid_main': ("mutinfo_val_carotid/images2", "mutinfo_val_carotid/annotations/imagenet_train_fixsize480_tau0.15_N3.json"),
+}
+
 def register_all_imagenet(root):
     for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_IMAGENET.items():
         for key, (image_root, json_file) in splits_per_dataset.items():
@@ -236,6 +242,17 @@ def register_all_fullcarotid(root):
                 os.path.join(root, image_root),
             )
 
+def register_all_mutinfovalcarotid(root):
+    for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_mutinfovalcarotid.items():
+        for key, (image_root, json_file) in splits_per_dataset.items():
+            # Assume pre-defined datasets live in `./datasets`.
+            register_coco_instances(
+                key,
+                _get_builtin_metadata(dataset_name),
+                os.path.join(root, json_file) if "://" not in json_file else json_file,
+                os.path.join(root, image_root),
+            )
+
 _root = os.path.expanduser(os.getenv("DETECTRON2_DATASETS", "datasets"))
 register_all_coco_semi(_root)
 register_all_coco_ca(_root)
@@ -249,3 +266,4 @@ register_all_objects365(_root)
 register_all_lvis(_root)
 register_all_carotidmini(_root)
 register_all_fullcarotid(_root)
+register_all_mutinfovalcarotid(_root)
