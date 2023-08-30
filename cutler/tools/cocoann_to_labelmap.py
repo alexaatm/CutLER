@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import cv2
 
 
 def segmToRLE(segm, h, w):
@@ -42,10 +43,24 @@ def cocosegm2mask(segm, h, w):
 def masks2labelmap(masks: list, h: int, w: int):
     labelmap = np.zeros((h, w), dtype=int) #Check if order h, w is correct
     label = 1 #start from 1, to leave 0 be a background index in the labelmap
+    # print(f"labelmap shape: {labelmap.shape}")
+
     for mask in masks:
+        H_m, W_m = mask.shape
+        # print(f"mask shape: {mask.shape}")
+        if (H_m!= h or W_m!=w):
+            # print("PRED needs to be resized")
+            resized_mask = cv2.resize(mask, dsize=(w, h), interpolation=cv2.INTER_NEAREST)  # (H, W)
+            # print(f"resiezed mask shape: {resized_mask.shape}")
+            # TODO figure out how to do it, in case mask needs to be reduced, and not scaled up
+            # resized_mask[:mask.shape[0], :mask.shape[1]] = mask  # replace with the initial prediction version, just in case they are different
+            mask = resized_mask
         labelmap[mask==1] = label
         label = label + 1
-    return labelmap
+    
+    # Also return number of segments - last assigned segemnt value 
+    # Note: last label is already incremented by 1, to account for the background
+    return labelmap, label
 
 
 if __name__ == "__main__":
@@ -91,6 +106,9 @@ if __name__ == "__main__":
     # dicrionary for storing labelmaps
     image_to_labelmaps = {}
 
+    # max number of segments per image
+    segm_num = 0
+
     for k, anns in tqdm.tqdm(image_to_anns.items()):
         masks = []
         for ann in anns:
@@ -105,13 +123,43 @@ if __name__ == "__main__":
         # E.g. can build the original im_ann dictionary using image names, not ids
         image_id = anns[0]['image_id']
         image_name = id_to_filename[image_id]
+        # print("Image:", image_name)
         
 
         # generate labelmaps
-        labelmap = masks2labelmap(masks, h, w)
+        labelmap, current_segm_num = masks2labelmap(masks, h, w)
         image_to_labelmaps[k] = labelmap
 
         # save labelmap
         output_file = f'{args.save_path}/{image_name}.png'
         labelmap_im = Image.fromarray(labelmap.astype(np.uint8)).convert('L')
         labelmap_im.save(output_file)
+
+        # check if the current segment number is maximum
+        if current_segm_num > segm_num:
+            segm_num = current_segm_num
+
+    # check if all images have labelmaps
+    missing_images = []
+    for image_data in tqdm.tqdm(image_list):
+        image_id = image_data['id']
+        if image_id not in image_to_labelmaps:
+            # generate an empty labelmap
+            labelmap = np.zeros((image_data['height'], image_data['width']), dtype=int)
+            # save labelmap
+            image_name = id_to_filename[image_id]
+            output_file = f'{args.save_path}/{image_name}.png'
+            labelmap_im = Image.fromarray(labelmap.astype(np.uint8)).convert('L')
+            labelmap_im.save(output_file)
+            # append filename to inform the user
+            missing_images.append(image_name)
+
+    print(f'Following images did not have any annotations: {missing_images}')
+    print(f'The largest number of segments per image: {segm_num}')
+
+    # save max number of values in a file, just for the reference
+    file = open(f'{args.save_path}/out.txt', 'w')
+    file.write(f'The largest number of segments per image: {segm_num}')
+    file.close()
+
+
