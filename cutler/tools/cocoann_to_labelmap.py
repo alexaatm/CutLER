@@ -65,7 +65,7 @@ def masks2labelmap(masks: list, h: int, w: int):
 
 if __name__ == "__main__":
 # load model arguments
-    parser = argparse.ArgumentParser(description='Generate labelmaps from json files')
+    parser = argparse.ArgumentParser(description='Generate labelmaps from coco-style json files')
     parser.add_argument('--ann_path', type=str, 
                         default='/home/guests/oleksandra_tmenova/test/project/thesis-codebase/data/carotid-mini/annotations/imagenet_train_fixsize480_tau0.15_N3.json',
                         help='Path to maskcut annotation or model predictions')
@@ -117,6 +117,7 @@ if __name__ == "__main__":
             masks.append(mask)
 
         # since anns are grouped per image, can get h,w, name from any ann in the list
+        #TODO: change this, since here it is the size of the binary mask, not the image...
         h = anns[0]['height']
         w = anns[0]['width']
         # TODO: figure out a better way to get the actual filename of th eimage (stored in image_list)
