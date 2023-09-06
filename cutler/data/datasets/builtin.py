@@ -110,6 +110,18 @@ _PREDEFINED_SPLITS_mutinfovalcarotid["mutinfo_val_carotid"] = {
     'mutinfo_val_carotid_main': ("mutinfo_val_carotid/images2", "mutinfo_val_carotid/annotations/imagenet_train_fixsize480_tau0.15_N3.json"),
 }
 
+_PREDEFINED_SPLITS_mutinfotraincarotid = {}
+_PREDEFINED_SPLITS_mutinfotraincarotid["mutinfo_train_carotid"] = {
+    # maskcut annotations
+    'mutinfo_train_carotid_main': ("mutinfo_train_carotid/images2", "mutinfo_train_carotid/annotations/maskcut_fixsize480_tau0.15_N3.json"),
+    # self-training round 1
+    "mutinfo_train_carotid_train_r1": ("mutinfo_train_carotid/images2", "mutinfo_train_carotid/annotations/cutler_mutinfo_train_r1.json"),
+    # self-training round 2
+    # self-training round 3
+    'mutinfo_train_carotid_dsp_main': ("mutinfo_train_carotid/images2", "mutinfo_train_carotid/annotations/dsp_labelmaps_clusters15_dino_ssd0_crf_segmaps.json"),
+}
+
+
 def register_all_imagenet(root):
     for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_IMAGENET.items():
         for key, (image_root, json_file) in splits_per_dataset.items():
@@ -253,6 +265,17 @@ def register_all_mutinfovalcarotid(root):
                 os.path.join(root, image_root),
             )
 
+def register_all_mutinfotraincarotid(root):
+    for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_mutinfotraincarotid.items():
+        for key, (image_root, json_file) in splits_per_dataset.items():
+            # Assume pre-defined datasets live in `./datasets`.
+            register_coco_instances(
+                key,
+                _get_builtin_metadata(dataset_name),
+                os.path.join(root, json_file) if "://" not in json_file else json_file,
+                os.path.join(root, image_root),
+            )
+
 _root = os.path.expanduser(os.getenv("DETECTRON2_DATASETS", "datasets"))
 register_all_coco_semi(_root)
 register_all_coco_ca(_root)
@@ -267,3 +290,4 @@ register_all_lvis(_root)
 register_all_carotidmini(_root)
 register_all_fullcarotid(_root)
 register_all_mutinfovalcarotid(_root)
+register_all_mutinfotraincarotid(_root)
