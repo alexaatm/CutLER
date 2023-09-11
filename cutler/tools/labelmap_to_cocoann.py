@@ -173,7 +173,10 @@ if __name__ == "__main__":
 
         # TODO: consider traversing dataset images folder, bc here it is assumed
         # that labelmaps have the same names and size as images
+        # Upd: they don't, at least the extention... 
         name = os.path.splitext(os.path.basename(labelmap_full))[0]
+        # To make it work with the dataset data/mutinfo_train_carotid/images/*.jpg
+        name = name + ".jpg"
         height, width = labelmap.shape
 
         # create coco-style image info
