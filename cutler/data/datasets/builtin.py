@@ -118,7 +118,11 @@ _PREDEFINED_SPLITS_mutinfotraincarotid["mutinfo_train_carotid"] = {
     "mutinfo_train_carotid_train_r1": ("mutinfo_train_carotid/images2", "mutinfo_train_carotid/annotations/cutler_mutinfo_train_r1.json"),
     # self-training round 2
     # self-training round 3
-    'mutinfo_train_carotid_dsp_main': ("mutinfo_train_carotid/images2", "mutinfo_train_carotid/annotations/dsp_labelmaps_clusters15_dino_ssd0_crf_segmaps.json"),
+    # deep spectral annotation
+    'mutinfo_train_carotid_dsp_main': ("mutinfo_train_carotid/images", "mutinfo_train_carotid/annotations/dsp_labelmaps_clusters15_dino_ssd0_crf_segmaps_jpgformat.json"),
+    'mutinfo_train_carotid_dsp_dino_ssd1_crf_segmaps': ("mutinfo_train_carotid/images", "mutinfo_train_carotid/annotations/dsp_labelmaps_clusters15_dino_ssd1_crf_segmaps_jpgformat.json"),
+    'mutinfo_train_carotid_dsp_dino_ssd2_crf_multi_region': ("mutinfo_train_carotid/images", "mutinfo_train_carotid/annotations/dsp_labelmaps_clusters15_dino_ssd2_crf_multi_region_jpgformat.json"),
+
 }
 
 
