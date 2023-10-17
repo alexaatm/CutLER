@@ -125,6 +125,20 @@ _PREDEFINED_SPLITS_mutinfotraincarotid["mutinfo_train_carotid"] = {
 
 }
 
+_PREDEFINED_SPLITS_usmixed = {}
+_PREDEFINED_SPLITS_usmixed["us_mixed"] = {
+    # maskcut annotations
+    'us_mixed_train1': ("US_MIXED/train/images2", "US_MIXED/train/annotations/imagenet_train_fixsize480_tau0.15_N3.json"),
+    'us_mixed_test1': ("US_MIXED/test/images2", "US_MIXED/test/annotations/imagenet_train_fixsize480_tau0.15_N3.json"),
+    'us_mixed_val1': ("US_MIXED/val/images2", "US_MIXED/val/annotations/imagenet_train_fixsize480_tau0.15_N3.json"),
+    # for self training after unsupervised training
+    'us_mixed_train1_r1': ("US_MIXED/train/images2", "US_MIXED/train/annotations/cutler_maskcut_cutler_us_mixed_model_final_thresh0.0_r1.json"),    
+    # dsp annotation - TODO (train, val, test), and separate ones as well
+    'us_mixed_train_dsp': ("US_MIXED/train/images2", "US_MIXED/train/annotations/dsp_masks_clusters15_dino1.0_ssd1.0_var0.0_crf_segmaps_fixed.json"),
+    'us_mixed_val_dsp': ("US_MIXED/val/images2", "US_MIXED/val/annotations/dsp_masks_clusters15_dino1.0_ssd1.0_var0.0_crf_segmaps.json"),
+
+}
+
 
 def register_all_imagenet(root):
     for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_IMAGENET.items():
@@ -280,6 +294,17 @@ def register_all_mutinfotraincarotid(root):
                 os.path.join(root, image_root),
             )
 
+def register_all_usmixed(root):
+    for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_usmixed.items():
+        for key, (image_root, json_file) in splits_per_dataset.items():
+            # Assume pre-defined datasets live in `./datasets`.
+            register_coco_instances(
+                key,
+                _get_builtin_metadata(dataset_name),
+                os.path.join(root, json_file) if "://" not in json_file else json_file,
+                os.path.join(root, image_root),
+            )
+
 _root = os.path.expanduser(os.getenv("DETECTRON2_DATASETS", "datasets"))
 register_all_coco_semi(_root)
 register_all_coco_ca(_root)
@@ -295,3 +320,5 @@ register_all_carotidmini(_root)
 register_all_fullcarotid(_root)
 register_all_mutinfovalcarotid(_root)
 register_all_mutinfotraincarotid(_root)
+register_all_usmixed(_root)
+
