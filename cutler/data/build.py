@@ -344,7 +344,9 @@ def build_batch_data_loader(
         )
 
 
-def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None):
+def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None, seed = None):
+    if cfg.SEED is not None:
+        seed = cfg.SEED
     if dataset is None:
         dataset = get_detection_dataset_dicts(
             cfg.DATASETS.TRAIN,
@@ -368,7 +370,7 @@ def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None):
         else:
             logger.info("Using training sampler {}".format(sampler_name))
             if sampler_name == "TrainingSampler":
-                sampler = TrainingSampler(len(dataset))
+                sampler = TrainingSampler(len(dataset), seed)
             elif sampler_name == "RepeatFactorTrainingSampler":
                 repeat_factors = RepeatFactorTrainingSampler.repeat_factors_from_category_frequency(
                     dataset, cfg.DATALOADER.REPEAT_THRESHOLD
@@ -388,6 +390,7 @@ def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None):
         "total_batch_size": cfg.SOLVER.IMS_PER_BATCH,
         "aspect_ratio_grouping": cfg.DATALOADER.ASPECT_RATIO_GROUPING,
         "num_workers": cfg.DATALOADER.NUM_WORKERS,
+        "seed": seed
     }
 
 
@@ -401,6 +404,7 @@ def build_detection_train_loader(
     aspect_ratio_grouping=True,
     num_workers=0,
     collate_fn=None,
+    seed,
 ):
     """
     Build a dataloader for object detection with some default features.
@@ -443,7 +447,7 @@ def build_detection_train_loader(
         assert sampler is None, "sampler must be None if dataset is IterableDataset"
     else:
         if sampler is None:
-            sampler = TrainingSampler(len(dataset))
+            sampler = TrainingSampler(len(dataset), seed)
         assert isinstance(sampler, torchdata.Sampler), f"Expect a Sampler but got {type(sampler)}"
     return build_batch_data_loader(
         dataset,
