@@ -176,7 +176,9 @@ if __name__ == "__main__":
         # Upd: they don't, at least the extention... 
         name = os.path.splitext(os.path.basename(labelmap_full))[0]
         # To make it work with the dataset data/mutinfo_train_carotid/images/*.jpg
-        name = name + ".jpg"
+        # name = name + ".jpg"
+        # To make it work with the dataset data/US_MIXED/train/images2/images/*.png (have folder of images inside images2 folder (that's what cutler expects))
+        name = 'images/' + name + '.png'
         height, width = labelmap.shape
 
         # create coco-style image info
