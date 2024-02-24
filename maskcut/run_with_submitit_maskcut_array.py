@@ -55,6 +55,10 @@ def get_shared_folder() -> Path:
         p = Path(f"/checkpoint/{user}/experiments/maskcut/")
         p.mkdir(exist_ok=True)
         return p
+    elif Path("./checkpoint/").is_dir():
+        p = Path(f"./checkpoint/")
+        p.mkdir(exist_ok=True)
+        return p
     raise RuntimeError("No shared folder available")
 
 
@@ -64,7 +68,7 @@ def get_init_file():
     init_file = get_shared_folder() / f"{uuid.uuid4().hex}_init"
     if init_file.exists():
         os.remove(str(init_file))
-    return init_file
+    return init_file.resolve()
 
 # Using a for loop for getting the array job and submit all jobs in one single array
 class Trainer(object):

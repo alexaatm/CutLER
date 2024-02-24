@@ -343,9 +343,11 @@ if __name__ == "__main__":
         backbone.cuda()
 
     img_folders = os.listdir(args.dataset_path)
+    print(f'DEBUG: maskcut.py: img_folders={img_folders}')
+    img_folders = ['images'] #HACK HACK HACK to work with my data sctructure 
 
     if args.out_dir is not None and not os.path.exists(args.out_dir) :
-        os.mkdir(args.out_dir)
+        os.makedirs(args.out_dir, exist_ok=True)
 
     start_idx = max(args.job_index*args.num_folder_per_job, 0)
     end_idx = min((args.job_index+1)*args.num_folder_per_job, len(img_folders))
@@ -353,6 +355,7 @@ if __name__ == "__main__":
     image_id, segmentation_id = 1, 1
     image_names = []
     for img_folder in img_folders[start_idx:end_idx]:
+        print(f'DEBUG: maskcut.py: img_folder={img_folder}')
         args.img_dir = os.path.join(args.dataset_path, img_folder)
         img_list = sorted(os.listdir(args.img_dir))
 
